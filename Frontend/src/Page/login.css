@@ -1,0 +1,72 @@
+body {
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+
+  /* Biar selalu di tengah */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  margin: 0; /* hilangkan margin default browser */
+}
+
+
+:root {
+          --bs-primary: #007bff;
+            --bs-secondary: #6c757d;
+            --bps-blue: #0A2463;
+            --bps-orange: #F58220;
+        }
+        .btn-primary {
+          background-color: var(--bps-orange);
+          border-color: var(--bps-orange);
+        }
+        .btn-primary:hover {
+          background-color: #e57210;
+          border-color: #e57210;
+        }
+        .card-header {
+          background-color: var(--bps-blue);
+          color: white;
+        }
+
+        /* Atur form agar konsisten */
+.form-label {
+  display: block;
+  margin-bottom: 0.6rem; /* jarak label ke input, 10px-an */
+  font-weight: 600; /* biar lebih jelas */
+}
+
+.form-control {
+  margin-bottom: 1rem; /* jarak antar input */
+  padding: 0.6rem 0.75rem; /* biar lebih lega */
+  font-size: 0.95rem;
+}
+
+ :root {
+            --bs-primary: #007bff;
+            --bs-secondary: #6c757d;
+            --bps-blue: #0A2463;
+            --bps-orange: #F58220;
+          }
+          body { background-color: #f0f2f5; }
+          .bps-header { background-color: var(--bps-blue); color: #fff; border-radius: .5rem; padding: 2rem; }
+          .btn-primary { background-color: var(--bps-orange); border-color: var(--bps-orange); }
+          .btn-primary:hover { background-color: #e57210; border-color: #e57210; }
+          .text-bps-blue { color: var(--bps-blue); }
+
+          .text-soft-yellow {
+              color: #d4af37 !important; /* emas lembut */
+            }
+
+            .text-soft-orange {
+              color: #e69500 !important; /* oranye pastel */
+            }
+
+            .text-soft-green {
+              color: #4caf50 !important; /* hijau lembut */
+            }
+            .text-soft-danger {
+            color: #e57373 !important; /* merah pastel */
+          }
