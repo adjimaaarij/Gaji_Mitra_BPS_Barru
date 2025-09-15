@@ -62,18 +62,18 @@ const Navbar = () => {
             className="btn btn-primary"
             style={{
               position: "fixed",
-              top: 20,
-              left: 20,
-              zIndex: 1000,
+              top: 17,
+              left: 17,
+              zIndex: 10,
               backgroundColor: "#0A2463",
               borderColor: "#0A2463",
-              fontSize: "32px",
+              fontSize: "24px",
               padding: "10px 18px",
               borderRadius: "10px",
             }}
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
             ☰
@@ -125,6 +125,11 @@ const Navbar = () => {
                   <li>
                     <Link to="/sobat">
                     <h2 className="display-6 mb-1">Mitra</h2>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/sobat_bulanan">
+                    <h2 className="display-6 mb-1">Sobat Bulanan</h2>
                     </Link>
                   </li>
                   <li>

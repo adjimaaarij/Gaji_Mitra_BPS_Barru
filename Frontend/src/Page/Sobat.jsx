@@ -34,6 +34,7 @@ const Sobat = () => {
   const [sobatList, setSobatList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState("honor"); // default urut berdasarkan honor
 
   const [formData, setFormData] = useState({
     id_sobat: "",
@@ -95,7 +96,8 @@ const Sobat = () => {
       id_sobat: sobat.id_sobat || "",
       nama: sobat.nama || "",
       email: sobat.email || "",
-      total_akumulasi: sobat.total_akumulasi || 0,
+      total_honor: sobat.total_honor || 0,
+      total_pulsa: sobat.total_pulsa || 0,
     });
     setIsEditing(true);
     setCurrentSobatId(sobat.id_sobat);
@@ -133,22 +135,45 @@ const Sobat = () => {
     return (
       s.id_sobat?.toString().includes(keyword) ||
       s.nama?.toLowerCase().includes(keyword) ||
-      s.email?.toLowerCase().includes(keyword)
+      s.email?.toLowerCase().includes(keyword) ||
+      s.total_honor?.toString().includes(keyword) ||
+      s.total_pulsa?.toString().includes(keyword)
     );
+  });
+
+  const sortedSobat = [...filteredSobat].sort((a, b) => {
+    if (sortBy === "honor") {
+      return (b.total_honor || 0) - (a.total_honor || 0); // descending
+    } else if (sortBy === "pulsa") {
+      return (b.total_pulsa || 0) - (a.total_pulsa || 0); // descending
+    }
+    return 0;
   });
 
   // Export Excel
   const handleExport = () => {
-    const dataToExport = sobatList.map((s) => ({
+    // Salin data agar tidak merusak state asli
+    let sortedData = [...sobatList];
+
+    // Urutkan sesuai pilihan sort
+    if (sortBy === "honor") {
+      sortedData.sort((a, b) => b.total_honor - a.total_honor);
+    } else if (sortBy === "pulsa") {
+      sortedData.sort((a, b) => b.total_pulsa - a.total_pulsa);
+    }
+
+    // Mapping untuk export ke Excel
+    const dataToExport = sortedData.map((s) => ({
       "ID Sobat (NIK)": s.id_sobat,
       Nama: s.nama,
       Email: s.email,
-      total_akumulasi: s.total_akumulasi,
+      "Total Honor": s.total_honor,
+      "Total Pulsa": s.total_pulsa,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Sobat");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Sobat (Mitra)");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -258,19 +283,36 @@ const Sobat = () => {
           </div>
 
           {/* Search & Export */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="h4 fw-bold text-bps-blue m-0">Data Sobat (Mitra)</h2>
-            <div className="d-flex gap-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Cari Sobat..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button className="btn btn-success" onClick={handleExport}>
-                Export Excel
-              </button>
+          <div className="p-4 rounded shadow">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h2 className="h4 fw-bold text-bps-blue m-0">
+                Data Sobat (Mitra)
+              </h2>
+
+              <div>
+                <div className="d-flex gap-2 align-items-center mb-1">
+                  <select
+                    className="form-select"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option value="honor">Urutkan Honor Tertinggi</option>
+                    <option value="pulsa">Urutkan Pulsa Tertinggi</option>
+                  </select>
+                  <button className="btn btn-success" onClick={handleExport}>
+                    Export Excel
+                  </button>
+                </div>
+
+                {/* Input search dipindah ke bawah */}
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Cari Sobat..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
@@ -291,35 +333,34 @@ const Sobat = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredSobat.length > 0 ? (
-                  filteredSobat.map((s) => {
-                    let cellClass = "";
-                    if (s.total_honor >= 3000000) {
-                      cellClass = "text-soft-danger fw-bold"; // merah
+                {sortedSobat.length > 0 ? (
+                  sortedSobat.map((s) => {
+                    let cellHonor = "";
+                    let cellPulsa = "";
+                    if (s.total_honor >= 3480000) {
+                      cellHonor = "text-soft-danger fw-bold"; // merah
                     }
-                    if (
-                      s.total_honor >= 2500000 &&
-                      s.total_honor <= 2999999
-                    ) {
-                      cellClass = "text-soft-yellow fw-bold"; // kuning
+                    if (s.total_honor <= 3479999 && s.total_honor >= 2999999) {
+                      cellHonor = "text-soft-yellow fw-bold"; // kuning
                     }
-
+                    if (s.total_pulsa >= 150000) {
+                      cellPulsa = "text-soft-danger fw-bold"; // merah
+                    }
+                    if (s.total_pulsa <= 149999 && s.total_pulsa >= 100000) {
+                      cellPulsa = "text-soft-yellow fw-bold"; // kuning
+                    }
                     return (
                       <tr key={s.id_sobat}>
                         <td>{s.id_sobat}</td>
                         <td>{s.nama}</td>
                         <td>{s.email}</td>
-                        <td className={cellClass}>
+                        <td >
                           Rp{" "}
-                          {Number(s.total_honor || 0).toLocaleString(
-                            "id-ID"
-                          )}
+                          {Number(s.total_honor || 0).toLocaleString("id-ID")}
                         </td>
-                        <td className={cellClass}>
+                        <td>
                           Rp{" "}
-                          {Number(s.total_pulsa || 0).toLocaleString(
-                            "id-ID"
-                          )}
+                          {Number(s.total_pulsa || 0).toLocaleString("id-ID")}
                         </td>
                         <td>
                           <button

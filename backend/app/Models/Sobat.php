@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sobat extends Model
 {
+
+    use HasFactory;
+
     protected $table = 'sobat';
     protected $primaryKey = 'id_sobat';
     public $incrementing = false; // karena NIK (id_sobat) bukan auto increment

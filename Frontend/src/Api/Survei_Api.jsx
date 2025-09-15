@@ -3,7 +3,7 @@ import useAxios from "./Local_Api";
 // ================== SURVEI ==================
 export const GetSurveis = async () => {
     try {
-        const response = await useAxios.get("/log/survei", {
+        const response = await useAxios.get("/survei", {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -23,7 +23,7 @@ export const GetSurveis = async () => {
 
 export const GetSurveiById = async (id) => {
     try {
-        const response = await useAxios.get(`/log/survei/${id}`, {
+        const response = await useAxios.get(`/survei/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -37,7 +37,7 @@ export const GetSurveiById = async (id) => {
 
 export const CreateSurvei = async (data) => {
     try {
-        const response = await useAxios.post("/log/survei", data, {
+        const response = await useAxios.post("/survei", data, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -51,7 +51,7 @@ export const CreateSurvei = async (data) => {
 
 export const UpdateSurvei = async (id, data) => {
     try {
-        const response = await useAxios.put(`/log/survei/${id}`, data, {
+        const response = await useAxios.put(`/survei/${id}`, data, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -65,7 +65,7 @@ export const UpdateSurvei = async (id, data) => {
 
 export const DeleteSurvei = async (id) => {
     try {
-        const response = await useAxios.delete(`/log/survei/${id}`, {
+        const response = await useAxios.delete(`/survei/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,

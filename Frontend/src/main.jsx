@@ -2,23 +2,16 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { HashRouter } from "react-router-dom";
 
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import './index.css'
-// import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-// import HonorForm from './Page/Sobat.jsx'
-// import Navbar from './Component/Navbar'
-import Login from "./Page/login.jsx";
-// import Home from "./Page/Home.jsx";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* <Navbar /> */}
-    <BrowserRouter>
+    <HashRouter>
       <App />
-    </BrowserRouter>
-    {/* <HonorForm /> */}
-    {/* <Home /> */}
+      <ToastContainer />
+    </HashRouter>
   </StrictMode>
 );

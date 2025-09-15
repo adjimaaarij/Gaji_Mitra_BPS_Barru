@@ -12,15 +12,17 @@ class NamaSurvei extends Model
 
     protected $table = 'nama_survei';
     protected $primaryKey = 'id_nama_survei';
+    protected $fillable = ['nama_survei', 'id_tim_survei'];
     public $timestamps = true;
 
-    // Nama tabel (jika tidak sesuai konvensi Laravel)
-   protected $fillable = [
-        'nama_survei',
-    ];
+    public function timSurvei()
+    {
+        return $this->belongsTo(TimSurvei::class, 'id_tim_survei');
+    }
+
 
     public function honors()
     {
-        return $this->hasMany(Honor::class, 'id_nama_survei');
+        return $this->hasMany(Honor::class, 'id_nama_survei', 'id_nama_survei');
     }
 }

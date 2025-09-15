@@ -2,7 +2,7 @@ import useAxios from "./Local_Api";
 
 export const GetSobat = async () => {
   try {
-    const response = await useAxios.get('/log/sobat', {
+    const response = await useAxios.get('/sobat', {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -17,7 +17,7 @@ export const GetSobat = async () => {
 
 export const GetSobatById = async (id) => {
     try {
-        const response = await useAxios.get(`/log/sobat/${id}`, {
+        const response = await useAxios.get(`/sobat/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -32,7 +32,7 @@ export const GetSobatById = async (id) => {
 
 export const CreateSobat = async (value) => {
     try {
-        const response = await useAxios.post('/log/sobat', value, {
+        const response = await useAxios.post('/sobat', value, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -47,7 +47,7 @@ export const CreateSobat = async (value) => {
 
 export const UpdateSobat = async (id, values) => {
     try {
-        const response = await useAxios.put(`/log/sobat/${id}`, values, {
+        const response = await useAxios.put(`/sobat/${id}`, values, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -63,7 +63,7 @@ export const UpdateSobat = async (id, values) => {
 
 export const DeleteSobat = async (id) => {
     try {
-        const response = await useAxios.delete(`/log/sobat/${id}`, {
+        const response = await useAxios.delete(`/sobat/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,

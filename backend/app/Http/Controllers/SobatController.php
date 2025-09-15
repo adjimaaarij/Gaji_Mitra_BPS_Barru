@@ -55,9 +55,9 @@ class SobatController extends Controller
         $sobat = Sobat::findOrFail($id);
 
         $data = $request->validate([
-            'id_sobat'     => 'sometimes|string|unique:sobat,id_sobat,' . $id . ',id_sobat',
+            'id_sobat'     => 'sometimes|string|unique:sobat,id_sobat,' . $sobat->id_sobat . ',id_sobat',
             'nama'         => 'sometimes|string|max:255',
-            'email'        => 'sometimes|email|unique:sobat,email,' . $id . ',id_sobat',
+            'email'        => 'sometimes|email|unique:sobat,email,' . $sobat->id_sobat . ',id_sobat',
             'total_honor'  => 'sometimes|numeric|min:0',
             'total_pulsa'  => 'sometimes|numeric|min:0',
         ]);

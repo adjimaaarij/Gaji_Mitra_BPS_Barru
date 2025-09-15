@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id('id_honor');
 
             // Relasi ke sobat
-            $table->unsignedBigInteger('id_sobat');
-            $table->foreign('id_sobat')->references('id_sobat')->on('sobat')->onDelete('cascade');
+            $table->string('id_sobat', 20); // foreign key ke sobat (string)
+            $table->foreign('id_sobat')
+                ->references('id_sobat')
+                ->on('sobat')
+                ->onDelete('cascade');
 
             // Relasi ke survei
             $table->unsignedBigInteger('id_survei');
@@ -24,7 +27,11 @@ return new class extends Migration
 
             // Relasi ke nama_survei
             $table->unsignedBigInteger('id_nama_survei');
-            $table->foreign('id_nama_survei')->references('id_nama_survei')->on('nama_survei')->onDelete('cascade');
+            $table->foreign('id_nama_survei')
+                ->references('id_nama_survei')
+                ->on('nama_survei')
+                ->onDelete('cascade');
+
 
             // Kolom lainnya
             $table->decimal('nilai_honor', 15, 2);

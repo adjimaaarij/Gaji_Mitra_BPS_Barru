@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import Select from "react-select";
 import { GetSobat, UpdateSobat, CreateSobat } from "../Api/Sobat_Api";
 import { GetSurveis } from "../Api/Survei_Api";
+import { GetTimSurvei, GetTimSurveisById } from "../Api/Tim_Survei_api";
 import { GetNamaSurveiById, GetNamaSurveis } from "../Api/Nama_Survei_Api";
 import {
   GetHonors,
@@ -31,12 +32,13 @@ const BootstrapCDN = () => (
   </>
 );
 
-// Main application component for the Mitra Gaji Admin Dashboard
+// Main application component for the Mitra Honor Admin Dashboard
 const Home = () => {
   const [honors, setHonors] = useState([]);
   const [sobatList, setSobatList] = useState([]);
   const [surveiList, setSurveiList] = useState([]);
   const [nama_surveiList, setNama_SurveiList] = useState([]);
+  const [sortBy, setSortBy] = useState("honor"); // default urut berdasarkan honor
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,8 +86,9 @@ const Home = () => {
   function getNamaBulan(tanggal) {
     if (!tanggal) return "-";
     const dateObj = new Date(tanggal);
-    const bulanIndex = dateObj.getMonth(); // 0 = Januari
-    return namaBulan[bulanIndex];
+    const bulanIndex = dateObj.getMonth(); // 0-11
+    const tahun = dateObj.getFullYear();
+    return `${namaBulan[bulanIndex + 1]} ${tahun}`;
   }
 
   const [isEditing, setIsEditing] = useState(false);
@@ -227,38 +230,74 @@ const Home = () => {
     const keyword = searchTerm.toLowerCase();
     const bulanNama = getNamaBulan(honor.bulan).toLowerCase();
 
+    // Format tanggal input sesuai UI
+    const tanggalInputFormatted = honor.tanggal_input
+      ? new Date(honor.tanggal_input.replace(" ", "T"))
+          .toLocaleDateString("id-ID")
+          .toLowerCase()
+      : "";
+
     return (
       honor.sobat?.id_sobat?.toString().includes(keyword) ||
       honor.id_honor?.toString().includes(keyword) ||
       bulanNama.includes(keyword) || // 🔥 sekarang cari pakai nama bulan
-      honor.nama_survei?.nama_survei?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      honor.nama_survei?.nama_survei?.toLowerCase().includes(keyword) ||
       honor.sobat?.nama?.toLowerCase().includes(keyword) ||
+      honor.nilai_honor?.toString().includes(keyword) ||
+      honor.nilai_pulsa?.toString().includes(keyword) ||
       honor.survei?.jenis_survei?.toLowerCase().includes(keyword) ||
-      String(honor.nilai_honor || "").includes(keyword)
+      tanggalInputFormatted.includes(keyword)
     );
+  });
+
+  const sortedHonors = [...filteredHonors].sort((a, b) => {
+    if (sortBy === "honor") {
+      return (b.nilai_honor || 0) - (a.nilai_honor || 0);
+    } else if (sortBy === "pulsa") {
+      return (b.nilai_pulsa || 0) - (a.nilai_pulsa || 0);
+    }
+    return 0;
   });
 
   const exportToExcel = () => {
     const data = filteredHonors.map((honor) => {
+      // Perbaikan: Ambil nama survei dari objek nama_survei
+      const namaSurvei = honor.nama_survei?.nama_survei || "-";
+
+      // Perbaikan: Ambil jenis survei dari objek survei
+      const jenisSurvei = honor.survei?.jenis_survei || "";
+      const jenisSurveiBulanan = jenisSurvei.toLowerCase().includes("bulanan")
+        ? "x"
+        : "";
+      const jenisSurveiTriwulanan = jenisSurvei
+        .toLowerCase()
+        .includes("triwulanan")
+        ? "x"
+        : "";
+      const jenisSurveiSubround = jenisSurvei.toLowerCase().includes("subround")
+        ? "x"
+        : "";
+      const jenisSurveiTahunan = jenisSurvei.toLowerCase().includes("tahunan")
+        ? "x"
+        : "";
+
       return {
         "ID Sobat": honor.sobat?.id_sobat || "-",
         Nama: honor.sobat?.nama || "-",
         Email: honor.sobat?.email || "-",
         Bulan: getNamaBulan(honor.bulan),
-        "Nama Survei": honor.nama_survei || "-",
-        Bulanan: honor.survei?.jenis_survei === "Bulanan" ? "x" : "",
-        Triwulanan: honor.survei?.jenis_survei === "Triwulanan" ? "x" : "",
-        Subround: honor.survei?.jenis_survei === "Subround" ? "x" : "",
-        Tahunan: honor.survei?.jenis_survei === "Tahunan" ? "x" : "",
-        "Nilai Honor": Number(honor.nilai_honor || 0),
+        "Nama Survei": namaSurvei, // Perbaikan di sini
+        Bulanan: jenisSurveiBulanan,
+        Triwulanan: jenisSurveiTriwulanan,
+        Subround: jenisSurveiSubround,
+        Tahunan: jenisSurveiTahunan,
+        "Nilai Honor": Number(honor.nilai_honor || 0), // angka biar bisa diformat
       };
     });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Gaji Mitra");
 
-    // format angka di kolom Nilai Honor
+    // set lebar kolom
     worksheet["!cols"] = [
       { wch: 15 }, // ID Sobat
       { wch: 25 }, // Nama
@@ -269,13 +308,31 @@ const Home = () => {
       { wch: 12 }, // Triwulanan
       { wch: 12 }, // Subround
       { wch: 12 }, // Tahunan
-      { wch: 15 }, // Nilai Honor
+      { wch: 18 }, // Nilai Honor
     ];
+
+    // Terapkan format angka untuk kolom Nilai Honor
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let row = 1; row <= range.e.r; row++) {
+      const cellRef = XLSX.utils.encode_cell({ r: row, c: 9 }); // kolom ke-9 (Nilai Honor)
+      if (worksheet[cellRef]) {
+        worksheet[cellRef].t = "n"; // tipe number
+        worksheet[cellRef].z = "#,##0"; // format ribuan
+      }
+    }
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Data Honor Sobat (Mitra)"
+    );
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
+
     saveAs(
       new Blob([excelBuffer], { type: "application/octet-stream" }),
       "GajiMitra.xlsx"
@@ -306,16 +363,16 @@ const Home = () => {
         <div className="container bg-white p-4 rounded shadow">
           <header className="bps-header p-4 text-center">
             <h1 className="display-4 mb-2">
-              Admin Dashboard Gaji Sobat (Mitra)
+              Admin Dashboard Honor Sobat (Mitra)
             </h1>
-            <p>Manajemen Dan Monitoring Data Gaji Sobat (Mitra).</p>
+            <p>Manajemen Dan Monitoring Data Honor Sobat (Mitra).</p>
           </header>
 
           <div className="p-4 rounded shadow mt-4 mb-4">
             <h2 className="h4 fw-bold text-bps-blue mb-4">
               {isEditing
-                ? "Edit Data Gaji Sobat (Mitra)"
-                : "Tambah Data Gaji Sobat (Mitra)"}
+                ? "Edit Data Honor Sobat (Mitra)"
+                : "Tambah Data Honor Sobat (Mitra)"}
             </h2>
 
             <form onSubmit={handleFormSubmit}>
@@ -357,7 +414,7 @@ const Home = () => {
 
                 <div className="col-12 col-md-6 col-lg-4">
                   <label className="form-label" htmlFor="id_survei">
-                    Jenis Survei
+                    Priode
                   </label>
                   <select
                     id="id_survei"
@@ -367,7 +424,7 @@ const Home = () => {
                     required
                     className="form-select"
                   >
-                    <option value="">Pilih Survei</option>
+                    <option value="">Pilih Priode</option>
                     {surveiList.map((s) => (
                       <option key={s.id_survei} value={s.id_survei}>
                         {s.nama_survei} ({s.jenis_survei})
@@ -380,21 +437,36 @@ const Home = () => {
                   <label className="form-label" htmlFor="id_nama_survei">
                     Survei
                   </label>
-                  <select
+                  <Select
                     id="id_nama_survei"
                     name="id_nama_survei"
-                    value={formData.id_nama_survei || ""}
-                    onChange={handleInputChange}
-                    required
-                    className="form-select"
-                  >
-                    <option value="">Pilih Survei</option>
-                    {namaSurveiList.map((n) => (
-                      <option key={n.id_nama_survei} value={n.id_nama_survei}>
-                        {n.nama_survei}
-                      </option>
-                    ))}
-                  </select>
+                    value={
+                      formData.id_nama_survei
+                        ? {
+                            value: formData.id_nama_survei,
+                            label:
+                              namaSurveiList.find(
+                                (n) =>
+                                  n.id_nama_survei === formData.id_nama_survei
+                              )?.nama_survei || "",
+                          }
+                        : null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        id_nama_survei: selected ? selected.value : "",
+                      }))
+                    }
+                    options={namaSurveiList.map((n) => ({
+                      value: n.id_nama_survei,
+                      label: n.nama_survei,
+                    }))}
+                    placeholder="Pilih Survei..."
+                    isSearchable
+                    className="basic-single"
+                    classNamePrefix="select"
+                  />
                 </div>
 
                 <div className="col-12 col-md-6 col-lg-4">
@@ -438,7 +510,7 @@ const Home = () => {
 
                 <div className="col-12 col-md-6 col-lg-4">
                   <label className="form-label" htmlFor="nilai_honor">
-                    Nilai Honor
+                    Nilai Pulsa
                   </label>
                   <input
                     type="number"
@@ -470,20 +542,33 @@ const Home = () => {
 
           <div className="p-4 rounded shadow">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="h4 fw-bold text-bps-blue m-0">
-                Daftar Gaji Sobat (Mitra)
-              </h2>
-              <div className="d-flex gap-2">
+              <h1 className="h4 fw-bold text-bps-blue m-0">
+                Daftar Honor Sobat (Mitra)
+              </h1>
+
+              <div>
+                <div className="d-flex gap-2 align-items-center mb-1">
+                  <select
+                    className="form-select mb-6"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option value="honor">Urutkan Honor Tertinggi</option>
+                    <option value="pulsa">Urutkan Pulsa Tertinggi</option>
+                  </select>
+                  <button className="btn btn-success" onClick={exportToExcel}>
+                    Export Excel
+                  </button>
+                </div>
+
+                {/* SortBy dipindah ke bawah */}
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Cari Mitra, Survei, Periode, atau Nilai..."
+                  placeholder="Cari..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <button className="btn btn-success" onClick={exportToExcel}>
-                  Export Excel
-                </button>
               </div>
             </div>
 
@@ -501,13 +586,13 @@ const Home = () => {
                     <th>Bulan</th>
                     <th>Nilai Honor</th>
                     <th>Nilai Pulsa</th>
-                    <th>Tanggal Input</th>
+                    {/* <th>Tanggal Input</th> */}
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredHonors.length > 0 ? (
-                    filteredHonors.map((honor) => (
+                  {sortedHonors.length > 0 ? (
+                    sortedHonors.map((honor) => (
                       <tr key={honor.id_honor}>
                         <td>{honor.sobat?.id_sobat || "-"}</td>
                         <td>{honor.sobat?.nama || "-"}</td>
@@ -525,13 +610,13 @@ const Home = () => {
                             "id-ID"
                           )}
                         </td>
-                        <td>
+                        {/* <td>
                           {honor.tanggal_input
                             ? new Date(
                                 honor.tanggal_input.replace(" ", "T")
                               ).toLocaleDateString("id-ID")
                             : "-"}
-                        </td>
+                        </td> */}
                         <td>
                           <button
                             onClick={() => handleEdit(honor)}

@@ -19,7 +19,6 @@ class Honor extends Model
         'id_nama_survei',
         'nilai_honor',
         'nilai_pulsa',
-        'nama_survei',
         'tanggal_input',
         'bulan',
     ];
@@ -31,12 +30,11 @@ class Honor extends Model
 
     public function survei()
     {
-        return $this->belongsTo(Survei::class, 'id_survei');
+        return $this->belongsTo(Survei::class, 'id_survei', 'id_survei');
     }
 
     public function namaSurvei()
     {
-        return $this->belongsTo(NamaSurvei::class, 'id_nama_survei');
+        return $this->belongsTo(NamaSurvei::class, 'id_nama_survei', 'id_nama_survei');
     }
-
 }

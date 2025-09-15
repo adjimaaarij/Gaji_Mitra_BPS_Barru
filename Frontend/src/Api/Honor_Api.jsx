@@ -3,7 +3,7 @@ import useAxios from "./Local_Api";
 // ================== HONOR ==================
 export const GetHonors = async () => {
     try {
-        const response = await useAxios.get("/log/honor", {
+        const response = await useAxios.get("/honor", {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -23,7 +23,7 @@ export const GetHonors = async () => {
 
 export const GetHonorById = async (id) => {
     try {
-        const response = await useAxios.get(`/log/honor/${id}`, {
+        const response = await useAxios.get(`/honor/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -37,7 +37,7 @@ export const GetHonorById = async (id) => {
 
 export const CreateHonor = async (data) => {
     try {
-        const response = await useAxios.post("/log/honor", data, {
+        const response = await useAxios.post("/honor", data, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -51,7 +51,7 @@ export const CreateHonor = async (data) => {
 
 export const UpdateHonor = async (id, data) => {
     try {
-        const response = await useAxios.put(`/log/honor/${id}`, data, {
+        const response = await useAxios.put(`/honor/${id}`, data, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -65,7 +65,7 @@ export const UpdateHonor = async (id, data) => {
 
 export const DeleteHonor = async (id) => {
     try {
-        const response = await useAxios.delete(`/log/honor/${id}`, {
+        const response = await useAxios.delete(`/honor/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`,

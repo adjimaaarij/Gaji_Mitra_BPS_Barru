@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('nama_survei', function (Blueprint $table) {
-            $table->id('id_nama_survei');
-            $table->string('nama_survei');
+            $table->id('id_nama_survei'); // gunakan snake_case
+            $table->unsignedBigInteger('id_tim_survei');
+            $table->string('nama_survei', 255);
             $table->timestamps();
+
+            $table->foreign('id_tim_survei')
+                ->references('id_tim_survei') // ✅ must match the actual PK column
+                ->on('tim_survei')
+                ->onDelete('cascade');
         });
     }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\SobatController;
 use App\Http\Controllers\HonorController;
 use App\Http\Controllers\SurveiController;
 use App\Http\Controllers\NamaSurveiController;
+use App\Http\Controllers\TimSurveiController;
 use App\Http\Controllers\AuthController;
 
 // Route default API
@@ -13,7 +14,7 @@ Route::get('/', function () {
 });
 
 // Public routes
-Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 // Route::get('/login/{email}/{password}', [AuthController::class, 'loginViaLink']);
 
@@ -50,6 +51,13 @@ Route::prefix('log')->middleware('auth:sanctum')->group(function () {
     Route::post('/nama_survei', [NamaSurveiController::class, 'store']);
     Route::put('/nama_survei/{id}', [NamaSurveiController::class, 'update']);
     Route::delete('/nama_survei/{id}', [NamaSurveiController::class, 'destroy']);
+
+    //TIM SURVEI
+    Route::get('/tim_survei', [TimSurveiController::class, 'index']);
+    Route::get('/tim_survei/{id}', [TimSurveiController::class, 'show']);
+    Route::post('/tim_survei', [TimSurveiController::class, 'store']);
+    Route::put('/tim_survei/{id}', [TimSurveiController::class, 'update']);
+    Route::delete('/tim_survei/{id}', [TimSurveiController::class, 'destroy']);
 });
 
 Route::get('/sobat', [SobatController::class, 'index']);
@@ -79,3 +87,10 @@ Route::get('/nama_survei/{id}', [NamaSurveiController::class, 'show']);
 Route::post('/nama_survei', [NamaSurveiController::class, 'store']);
 Route::put('/nama_survei/{id}', [NamaSurveiController::class, 'update']);
 Route::delete('/nama_survei/{id}', [NamaSurveiController::class, 'destroy']);
+
+//TIM SURVEI
+Route::get('/tim_survei', [TimSurveiController::class, 'index']);
+Route::get('/tim_survei/{id}', [TimSurveiController::class, 'show']);
+Route::post('/tim_survei', [TimSurveiController::class, 'store']);
+Route::put('/tim_survei/{id}', [TimSurveiController::class, 'update']);
+Route::delete('/tim_survei/{id}', [TimSurveiController::class, 'destroy']);

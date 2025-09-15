@@ -27,10 +27,13 @@ class NamaSurveiController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_survei' => 'required|string|max:255',
+            'nama_survei'  => 'required|string|max:255',
+            'id_tim_survei' => 'required|exists:tim_survei,id_tim_survei',
+
         ]);
 
         $survei = NamaSurvei::create($validated);
+
 
         return response()->json([
             'status'  => 'success',
@@ -61,6 +64,7 @@ class NamaSurveiController extends Controller
 
         $validated = $request->validate([
             'nama_survei' => 'required|string|max:255',
+            'id_tim_survei' => 'required|exists:tim_survei,id_tim_survei',
         ]);
 
         $survei->update($validated);
